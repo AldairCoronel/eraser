@@ -32,9 +32,9 @@ type ImageScannerReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=eraser.sh.eraser.sh,resources=imagescanners,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=eraser.sh.eraser.sh,resources=imagescanners/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=eraser.sh.eraser.sh,resources=imagescanners/finalizers,verbs=update
+//+kubebuilder:rbac:groups=eraser.sh,resources=imagescanners,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=eraser.sh,resources=imagescanners/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=eraser.sh,resources=imagescanners/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
