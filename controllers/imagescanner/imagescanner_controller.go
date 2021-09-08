@@ -18,6 +18,7 @@ package imagescanner
 
 import (
 	"context"
+	"time"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -49,7 +50,7 @@ func (r *ImageScannerReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// your logic here
 
-	return ctrl.Result{}, nil
+	return ctrl.Result{RequeueAfter: time.Hour, Requeue: true}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
