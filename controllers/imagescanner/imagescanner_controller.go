@@ -20,10 +20,16 @@ import (
 	"context"
 	"time"
 
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	eraserv1alpha1 "github.com/Azure/eraser/api/v1alpha1"
 )
 
 // ImageScannerReconciler reconciles a ImageScanner object
@@ -47,10 +53,37 @@ type ImageScannerReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
 func (r *ImageScannerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
-
+	job := &eraserv1alpha1.ImageJob{
+		ObjectMeta: metav1.ObjectMeta{
+			GenerateName: "imagejob-",
+		},
+		Spec: eraserv1alpha1.ImageJobSpec{
+			JobTemplate: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{
+					RestartPolicy: "Never",
+					Containers: []corev1.Container{
+						{
+							Name:            "eraser",
+							Image:           "aldaircoronel/eraser:latest",
+							ImagePullPolicy: corev1.PullAlways,
+						},
+					},
+					ServiceAccountName: "eraser-controller-manager",
+				},
+			},
+			ImageListName: req.NamespacedName.Name,
+		},
+	}
+	err := r.Create(ctx, job)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return reconcile.Result{}, nil
+		}
+		return reconcile.Result{}, err
+	}
 	// your logic here
 
-	return ctrl.Result{RequeueAfter: time.Hour, Requeue: true}, nil
+	return ctrl.Result{RequeueAfter: time.Minute, Requeue: true}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
