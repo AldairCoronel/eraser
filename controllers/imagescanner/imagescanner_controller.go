@@ -26,7 +26,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	eraserv1alpha1 "github.com/Azure/eraser/api/v1alpha1"
@@ -37,6 +36,10 @@ type ImageScannerReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
+
+const (
+	reconcileInterval = 1 * time.Minute
+)
 
 //+kubebuilder:rbac:groups=eraser.sh,resources=imagescanners,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=eraser.sh,resources=imagescanners/status,verbs=get;update;patch
@@ -52,7 +55,7 @@ type ImageScannerReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
 func (r *ImageScannerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	// _ = log.FromContext(ctx)
 	job := &eraserv1alpha1.ImageJob{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: "imagejob-",
@@ -88,8 +91,18 @@ func (r *ImageScannerReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *ImageScannerReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		// Uncomment the following line adding a pointer to an instance of the controlled resource as an argument
-		// For().
-		Complete(r)
+	// scheduleChan := make(chan event.GenericEvent)
+	// if err := mgr.Add(manager.RunnableFunc(func(c <-chan struct{}) error {
+	// 	e := event.GenericEvent{}
+	// 	ticker := time.NewTicker(reconcileInterval)
+
+	// 	for range ticker.C {
+	// 		scheduleChan <- e
+	// 	}
+	// 	return nil
+	// })); err != nil {
+	// 	return fmt.Errorf("failed to add runnable to manager: %w", err)
+	// }
+
+	return nil
 }
