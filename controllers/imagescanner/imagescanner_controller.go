@@ -37,10 +37,6 @@ type ImageScannerReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-const (
-	reconcileInterval = 1 * time.Minute
-)
-
 //+kubebuilder:rbac:groups=eraser.sh,resources=imagescanners,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=eraser.sh,resources=imagescanners/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=eraser.sh,resources=imagescanners/finalizers,verbs=update
@@ -66,12 +62,12 @@ func (r *ImageScannerReconciler) Reconcile(ctx context.Context, req ctrl.Request
 					RestartPolicy: "Never",
 					Containers: []corev1.Container{
 						{
-							Name:            "eraser",
-							Image:           "aldaircoronel/eraser:latest",
+							Name:            "collector",
+							Image:           "aldaircoronel/collector:latest",
 							ImagePullPolicy: corev1.PullAlways,
 						},
 					},
-					ServiceAccountName: "eraser-controller-manager",
+					ServiceAccountName: "collector-controller-manager",
 				},
 			},
 			ImageListName: req.NamespacedName.Name,
@@ -91,18 +87,5 @@ func (r *ImageScannerReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *ImageScannerReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	// scheduleChan := make(chan event.GenericEvent)
-	// if err := mgr.Add(manager.RunnableFunc(func(c <-chan struct{}) error {
-	// 	e := event.GenericEvent{}
-	// 	ticker := time.NewTicker(reconcileInterval)
-
-	// 	for range ticker.C {
-	// 		scheduleChan <- e
-	// 	}
-	// 	return nil
-	// })); err != nil {
-	// 	return fmt.Errorf("failed to add runnable to manager: %w", err)
-	// }
-
 	return nil
 }
